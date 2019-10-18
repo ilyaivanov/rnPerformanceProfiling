@@ -1,113 +1,72 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
+import React, {useState} from 'react';
+import {FlatList, Image, StatusBar, StyleSheet, Text, View} from 'react-native';
 
-import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from 'react-native';
+const chunkSize = 300;
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const createColor = index => {
+  var tinycolor = require('tinycolor2');
+  const colorModifier = val =>
+    index % (chunkSize * 2) < chunkSize
+      ? tinycolor('black').lighten(val)
+      : tinycolor('white').darken(val);
+  return colorModifier(((index % chunkSize) / chunkSize) * 100);
+};
 
-const App: () => React$Node = () => {
+const getColor = index => createColor(index).toString();
+
+const getTextColor = index => (createColor(index).isDark() ? 'white' : 'black');
+
+const App = () => {
+  const [items, setItems] = useState(Array.from(new Array(chunkSize)));
+
+  const concat = () => {
+    const newItems = items.concat(Array.from(new Array(chunkSize)));
+    setItems(newItems);
+  };
+
   return (
     <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
+      <StatusBar barStyle="light-content" />
+      <View style={{backgroundColor: 'black'}}>
+        <FlatList
+          contentContainerStyle={{paddingTop: 20}}
+          onEndReached={concat}
+          onEndReachedThreshold={10}
+          data={items}
+          keyExtractor={(_, index) => index + ''}
+          renderItem={({index}) => (
+            <View style={[styles.bar, {backgroundColor: getColor(index)}]}>
+              <Image
+                style={styles.image}
+                height={50}
+                width={50}
+                source={{uri: 'https://cdn141.picsart.com/252986329011202.jpg'}}
+              />
+              <Text style={[styles.text, {color: getTextColor(index)}]}>
+                {Math.floor(index / chunkSize)} - {index + 1}
+              </Text>
             </View>
           )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+        />
+      </View>
     </>
   );
 };
-
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
+  bar: {
+    height: 50,
+    flexDirection: 'row',
+    backgroundColor: 'blue',
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
-  engine: {
-    position: 'absolute',
-    right: 0,
+  image: {
+    height: 50,
+    width: 50,
   },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
+  text: {
+    width: 100,
+    fontSize: 23,
   },
 });
 
